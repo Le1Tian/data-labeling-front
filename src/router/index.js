@@ -1,6 +1,5 @@
 // 该文件专门用于创建整个应用的路由器
 import VueRouter from 'vue-router'
-import ImageMarker from "@/components/ImageMarker";
 
 // 创建路由器并暴露
 const router = new VueRouter({
@@ -8,9 +7,20 @@ const router = new VueRouter({
   routes: [
     {
       path: "/",
-      component: ImageMarker,
-      meta: {auth: false, title: "图片标注"},
+      component: () => import("@/views/Home.vue"),
+      meta: {
+        title: "首页",
+        // requireAuth: true
+      }
     },
+    {
+      path: "/annotation",
+      component: () => import("@/components/ImageMarker.vue"),
+      meta: {
+        title: "标注页",
+        // requireAuth: true
+      }
+    }
   ]
 });
 

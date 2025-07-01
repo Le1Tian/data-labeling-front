@@ -233,6 +233,8 @@ export default {
     // 添加浏览器窗口大小变化事件监听器
     // 当窗口大小改变时，重新加载图片以适应新的窗口尺寸
     window.addEventListener("resize", this.loadImage);
+
+    this.fetchImages(); // 新增：加载图片列表
   },
   unmounted() {
     // 组件卸载时移除事件监听器，防止内存泄漏
@@ -243,7 +245,7 @@ export default {
     imagePath() {
       // 注释掉的代码是用于从服务器获取图片的示例
       // const path = "http://localhost:8000/static/" + this.images[this.currentImageIndex].url;
-      return this.images[this.currentImageIndex].url;
+      return "http://localhost:8090" + this.images[this.currentImageIndex].url;
     },
     // 计算属性：获取去重后的标签名集合
     uniqueName() {
@@ -257,6 +259,25 @@ export default {
     },
   },
   methods: {
+    async fetchImages() {
+       const dataset = this.$store.state.currentDataset;
+       if (!dataset) {
+         this.$message.error('未选择数据集');
+         return;
+       }
+       const res = await this.$http.post('/datasetAnnoInfo/listByDatasetId', { "datasetId": dataset.id });
+      console.log('res', res)
+       if (res.code === 200) {
+         // 假设后端返回 [{id, imagePath, imageName}]
+         this.images = res.data.map(item => ({
+           id: item.id,
+           url: item.imagePath // 这里要保证是前端可访问的URL
+         }));
+         this.currentImageIndex = 0;
+         this.loadRects();
+         this.loadImage();
+       }
+     },
     // 初始化方法：设置组件的基本状态
     init() {
       // 获取设备像素比，用于处理高分辨率屏幕
